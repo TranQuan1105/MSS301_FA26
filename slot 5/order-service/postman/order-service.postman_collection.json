@@ -1,0 +1,134 @@
+{
+  "info": {
+    "name": "Order Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TC1 - POST Create Order - Success",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 201\", function () {",
+        "    pm.response.to.have.status(201);",
+        "});",
+        "",
+        "pm.test(\"Response body is correct message\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"Order Placed Successfully\");",
+        "});",
+        "",
+        "pm.test(\"Content-Type is text/plain\", function () {",
+        "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/plain\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC2 - POST Create Order - Large quantity, decimal price",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 201\", function () {",
+        "    pm.response.to.have.status(201);",
+        "});",
+        "",
+        "pm.test(\"Response body is correct message\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"Order Placed Successfully\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"pixel_8\",\n  \"price\": 899.99,\n  \"quantity\": 5\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC3 - POST Create Order - Missing skuCode",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "// Chua co validation nen hien tai van tra 201 (sku_code luu NULL). Nen la 400 khi them @Valid.",
+        "pm.test(\"Status code is 201 (current behaviour, no validation)\", function () {",
+        "    pm.response.to.have.status(201);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"price\": 1000,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC4 - POST Create Order - Invalid quantity type",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 400 for invalid quantity type\", function () {",
+        "    pm.response.to.have.status(400);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"galaxy_24\",\n  \"price\": 1000,\n  \"quantity\": \"abc\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC5 - POST Create Order - Missing Content-Type",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 415 Unsupported Media Type\", function () {",
+        "    pm.response.to.have.status(415);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "text/plain" }],
+        "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "text" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] },
+        "description": "Body type raw + Text de Postman khong tu gan application/json."
+      }
+    },
+    {
+      "name": "TC6 - POST Create Order - Empty body",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "// Chua co validation nen hien tai van tra 201 (moi field luu NULL). Nen la 400 khi them @Valid.",
+        "pm.test(\"Status code is 201 (current behaviour, no validation)\", function () {",
+        "    pm.response.to.have.status(201);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC7 - GET Order - Method Not Allowed",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 405 Method Not Allowed\", function () {",
+        "    pm.response.to.have.status(405);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+      }
+    },
+    {
+      "name": "TC8 - POST Wrong path - Not Found",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 404 Not Found\", function () {",
+        "    pm.response.to.have.status(404);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{order_base_url}}/api/orders", "host": ["{{order_base_url}}"], "path": ["api", "orders"] }
+      }
+    }
+  ]
+}
