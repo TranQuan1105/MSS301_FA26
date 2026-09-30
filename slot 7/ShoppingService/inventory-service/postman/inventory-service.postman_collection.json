@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "Inventory Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TC1 - GET Check Stock - In Stock",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 200\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"In stock returns true\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"true\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=100", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "100" }] }
+      }
+    },
+    {
+      "name": "TC2 - GET Check Stock - Not Enough",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 200\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"Not enough stock returns false\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"false\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=200", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "200" }] }
+      }
+    },
+    {
+      "name": "TC3 - GET Check Stock - Boundary equal (100)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 200\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"Quantity equal to stock returns true (>=)\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"true\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=pixel_8&quantity=100", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "pixel_8" }, { "key": "quantity", "value": "100" }] }
+      }
+    },
+    {
+      "name": "TC4 - GET Check Stock - Boundary over by 1 (101)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 200\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"Quantity over stock by 1 returns false\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"false\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=pixel_8&quantity=101", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "pixel_8" }, { "key": "quantity", "value": "101" }] }
+      }
+    },
+    {
+      "name": "TC5 - GET Check Stock - Unknown SKU",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 200\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"Unknown SKU returns false\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"false\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=not_exist_sku&quantity=1", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "not_exist_sku" }, { "key": "quantity", "value": "1" }] }
+      }
+    },
+    {
+      "name": "TC6 - GET Check Stock - Missing quantity",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Missing quantity returns 400\", function () {",
+        "    pm.response.to.have.status(400);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }] }
+      }
+    },
+    {
+      "name": "TC7 - GET Check Stock - Missing skuCode",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Missing skuCode returns 400\", function () {",
+        "    pm.response.to.have.status(400);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?quantity=10", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "quantity", "value": "10" }] }
+      }
+    },
+    {
+      "name": "TC8 - GET Check Stock - Invalid quantity type",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Invalid quantity type returns 400\", function () {",
+        "    pm.response.to.have.status(400);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=abc", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "abc" }] }
+      }
+    },
+    {
+      "name": "TC9 - GET Check Stock - Negative quantity",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "// Chua co validation nen so am van thoa dieu kien >= va tra true. Nen la 400 khi them @Min(1).",
+        "pm.test(\"Status code is 200 (current behaviour, no validation)\", function () {",
+        "    pm.response.to.have.status(200);",
+        "});",
+        "",
+        "pm.test(\"Negative quantity returns true (current behaviour)\", function () {",
+        "    pm.expect(pm.response.text()).to.eql(\"true\");",
+        "});"
+      ] } }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=-5", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "-5" }] }
+      }
+    },
+    {
+      "name": "TC10 - POST Check Stock - Method Not Allowed",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test(\"Status code is 405 Method Not Allowed\", function () {",
+        "    pm.response.to.have.status(405);",
+        "});"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=1", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"],
+          "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "1" }] }
+      }
+    }
+  ]
+}
