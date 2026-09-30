@@ -82,6 +82,13 @@
 			<version>6.0.1</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- WireMock chính thức cho Spring Boot (thay spring-cloud-starter-contract-stub-runner) -->
+		<dependency>
+			<groupId>org.wiremock.integrations</groupId>
+			<artifactId>wiremock-spring-boot</artifactId>
+			<version>4.2.3</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
