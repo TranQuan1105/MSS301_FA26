@@ -1,0 +1,230 @@
+{
+  "info": {
+    "name": "MSS301 - Part 3 (OpenFeign + API Gateway)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Part3 - Direct",
+      "item": [
+        {
+          "name": "T2.1 - GET Inventory - In stock (qty 100)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Body is true\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"true\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=100", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"], "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "100" }] }
+          }
+        },
+        {
+          "name": "T2.2 - GET Inventory - Out of stock (qty 101)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Body is false\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"false\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=iphone_15&quantity=101", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"], "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "101" }] }
+          }
+        },
+        {
+          "name": "T2.3 - GET Inventory - Unknown skuCode",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Body is false\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"false\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{inventory_base_url}}/api/inventory?skuCode=khong_ton_tai&quantity=1", "host": ["{{inventory_base_url}}"], "path": ["api", "inventory"], "query": [{ "key": "skuCode", "value": "khong_ton_tai" }, { "key": "quantity", "value": "1" }] }
+          }
+        },
+        {
+          "name": "T3.1 - POST Order - In stock (qty 100)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 201\", function () {",
+            "    pm.response.to.have.status(201);",
+            "});",
+            "",
+            "pm.test(\"Response body is correct message\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"Order Placed Successfully\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 100\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+          }
+        },
+        {
+          "name": "T3.3 - POST Order - Out of stock (qty 101)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 500\", function () {",
+            "    pm.response.to.have.status(500);",
+            "});"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 101\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+          }
+        },
+        {
+          "name": "T3.4 - POST Order - Unknown skuCode",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 500\", function () {",
+            "    pm.response.to.have.status(500);",
+            "});"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"nokia_3310\",\n  \"price\": 50,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{order_base_url}}/api/order", "host": ["{{order_base_url}}"], "path": ["api", "order"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part3 - Gateway",
+      "item": [
+        {
+          "name": "T5.2 - POST Product via Gateway",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 201\", function () {",
+            "    pm.response.to.have.status(201);",
+            "});",
+            "",
+            "pm.test(\"Response has id\", function () {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body.id).to.be.a(\"string\").and.not.empty;",
+            "    pm.expect(body.name).to.eql(\"iPhone 15\");",
+            "    pm.collectionVariables.set(\"productId\", body.id);",
+            "});"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"iPhone 15\",\n  \"description\": \"iPhone 15 is a smartphone from Apple\",\n  \"price\": 1000\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{gateway}}/api/products", "host": ["{{gateway}}"], "path": ["api", "products"] }
+          }
+        },
+        {
+          "name": "T5.1 - GET Products via Gateway",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Body is an array containing the created product\", function () {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.be.an(\"array\");",
+            "    pm.expect(body.map(p => p.id)).to.include(pm.collectionVariables.get(\"productId\"));",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway}}/api/products", "host": ["{{gateway}}"], "path": ["api", "products"] }
+          }
+        },
+        {
+          "name": "T5.6 - PUT Product sub-path via Gateway",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Product is updated\", function () {",
+            "    pm.expect(pm.response.json().name).to.eql(\"iPhone 15 Pro\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"iPhone 15 Pro\",\n  \"description\": \"updated via gateway\",\n  \"price\": 1200\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{gateway}}/api/products/{{productId}}", "host": ["{{gateway}}"], "path": ["api", "products", "{{productId}}"] }
+          }
+        },
+        {
+          "name": "T5.6 - DELETE Product sub-path via Gateway (cleanup)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 204\", function () {",
+            "    pm.response.to.have.status(204);",
+            "});"
+          ] } }],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{gateway}}/api/products/{{productId}}", "host": ["{{gateway}}"], "path": ["api", "products", "{{productId}}"] }
+          }
+        },
+        {
+          "name": "T5.3 - POST Order via Gateway",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 201\", function () {",
+            "    pm.response.to.have.status(201);",
+            "});",
+            "",
+            "pm.test(\"Response body is correct message\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"Order Placed Successfully\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"skuCode\": \"iphone_15\",\n  \"price\": 1000,\n  \"quantity\": 1\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{gateway}}/api/order", "host": ["{{gateway}}"], "path": ["api", "order"] }
+          }
+        },
+        {
+          "name": "T5.4 - GET Inventory via Gateway (query params forwarded)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 200\", function () {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test(\"Body is true\", function () {",
+            "    pm.expect(pm.response.text()).to.eql(\"true\");",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway}}/api/inventory?skuCode=iphone_15&quantity=1", "host": ["{{gateway}}"], "path": ["api", "inventory"], "query": [{ "key": "skuCode", "value": "iphone_15" }, { "key": "quantity", "value": "1" }] }
+          }
+        },
+        {
+          "name": "T5.5 - GET Unknown path via Gateway",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test(\"Status code is 404\", function () {",
+            "    pm.response.to.have.status(404);",
+            "});"
+          ] } }],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway}}/api/khong-co-route", "host": ["{{gateway}}"], "path": ["api", "khong-co-route"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "productId", "value": "" }
+  ]
+}
