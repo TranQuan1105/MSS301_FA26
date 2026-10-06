@@ -25,6 +25,9 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class BookingService {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final long CANCEL_BEFORE_HOURS = 2;
+
     private final BookingRepository bookingRepository;
     private final BookingDetailRepository bookingDetailRepository;
     private final MovieClient movieClient;
@@ -98,6 +101,44 @@ public class BookingService {
         return BookingResponse.from(saved);
     }
 
+    // ======================= F8: HISTORY & CANCEL =======================
+
+    // TODO 8.1
+    public List<BookingResponse> getMyBookings(Long customerId) {
+        return bookingRepository.findByCustomerIdOrderByBookingDateDesc(customerId)
+                .stream().map(BookingResponse::from).toList();
+    }
+
+    public List<BookingResponse> getAll() {
+        return bookingRepository.findAllByOrderByBookingDateDesc()
+                .stream().map(BookingResponse::from).toList();
+    }
+
+    // TODO 8.2
+    public BookingResponse getById(Long bookingId, Long userId, String role) {
+        return BookingResponse.from(findAccessible(bookingId, userId, role));
+    }
+
+    // TODO 8.3
+    @Transactional
+    public BookingResponse cancel(Long bookingId, Long userId, String role) {
+        Booking booking = findAccessible(bookingId, userId, role);
+        if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
+            throw ApiException.badRequest("Only CONFIRMED bookings can be cancelled");
+        }
+        if (!ROLE_ADMIN.equals(role)) {                                     // BR12
+            LocalDateTime deadline = LocalDateTime.now().plusHours(CANCEL_BEFORE_HOURS);
+            boolean tooLate = booking.getDetails().stream()
+                    .anyMatch(d -> d.getShowtimeStart().isBefore(deadline));
+            if (tooLate) {
+                throw ApiException.badRequest("Booking can only be cancelled at least "
+                        + CANCEL_BEFORE_HOURS + " hours before the showtime");
+            }
+        }
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+        return BookingResponse.from(bookingRepository.save(booking));
+    }
+
     // ======================= HELPER =======================
 
     private ShowtimeResponse fetchShowtime(String showtimeId) {
@@ -129,5 +170,15 @@ public class BookingService {
             throw ApiException.badRequest("Seat " + seat + " does not exist in room " + st.roomName()
                     + " (rows A-" + lastRow + ", seats 1-" + st.seatsPerRow() + ")");
         }
+    }
+
+    /** BR11: Customer chi truy cap booking cua minh, Admin truy cap tat ca */
+    private Booking findAccessible(Long bookingId, Long userId, String role) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> ApiException.notFound("Booking not found with id: " + bookingId));
+        if (!ROLE_ADMIN.equals(role) && !booking.getCustomerId().equals(userId)) {
+            throw ApiException.forbidden("You can only access your own bookings");
+        }
+        return booking;
     }
 }
