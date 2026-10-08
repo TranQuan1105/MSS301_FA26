@@ -328,4 +328,3 @@ NoSuchBeanDefinitionException: No qualifying bean of type 'InventoryClient' avai
 | Không load balancing — luôn gọi 1 URL cố định | Eureka + Spring Cloud LoadBalancer |
 | Không retry — lỡ lỗi mạng → đơn fail luôn | Resilience4j Retry |
 | Coupling đồng bộ chặt — Inventory down kéo Order down | Async + Kafka (chương sau) |
-
